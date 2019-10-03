@@ -13,6 +13,7 @@ else
 obj-y += spi.o
 obj-$(CONFIG_SOFT_SPI) += soft_spi_legacy.o
 endif
+obj-$(CONFIG_TPM2_TIS_SPI) += spi-bcm2835aux.o
 
 obj-$(CONFIG_ALTERA_SPI) += altera_spi.o
 obj-$(CONFIG_ATH79_SPI) += ath79_spi.o
