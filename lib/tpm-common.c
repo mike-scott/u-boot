@@ -180,10 +180,10 @@ u32 tpm_sendrecv_command(const void *command, void *response, size_t *size_ptr)
 
 	ret = tpm_return_code(response);
 
-	log_debug("TPM response [ret:%d]: ", ret);
-	for (i = 0; i < response_length; i++)
-		log_debug("%02x ", ((u8 *)response)[i]);
-	log_debug("\n");
+	//	printf("TPM response [ret:%d]: ", ret);
+	//for (i = 0; i < response_length; i++)
+	//	printf("%02x ", ((u8 *)response)[i]);
+	//printf("\n");
 
 	return ret;
 }
