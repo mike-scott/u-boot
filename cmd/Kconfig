@@ -1391,6 +1391,7 @@ config CMD_DATE
 
 config CMD_TIME
 	bool "time"
+	select LIB_RAND
 	help
 	  Run commands and summarize execution time.
 
