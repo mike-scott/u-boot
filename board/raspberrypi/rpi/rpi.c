@@ -62,7 +62,7 @@ struct msg_get_clock_rate {
 };
 
 #ifdef CONFIG_ARM64
-#define DTB_DIR "broadcom/"
+#define DTB_DIR ""
 #else
 #define DTB_DIR ""
 #endif
@@ -83,157 +83,17 @@ struct rpi_model {
 	bool has_onboard_eth;
 };
 
-static const struct rpi_model rpi_model_unknown = {
-	"Unknown model",
-	DTB_DIR "bcm283x-rpi-other.dtb",
-	false,
+
+
+static const struct rpi_model rpi_models_new_scheme = {
+
+		"Model C",
+		DTB_DIR "/boot/bcm2710-rpi-custom.dtb",
+		true,
+	
+
 };
 
-static const struct rpi_model rpi_models_new_scheme[] = {
-	[0x0] = {
-		"Model A",
-		DTB_DIR "bcm2835-rpi-a.dtb",
-		false,
-	},
-	[0x1] = {
-		"Model B",
-		DTB_DIR "bcm2835-rpi-b.dtb",
-		true,
-	},
-	[0x2] = {
-		"Model A+",
-		DTB_DIR "bcm2835-rpi-a-plus.dtb",
-		false,
-	},
-	[0x3] = {
-		"Model B+",
-		DTB_DIR "bcm2835-rpi-b-plus.dtb",
-		true,
-	},
-	[0x4] = {
-		"2 Model B",
-		DTB_DIR "bcm2836-rpi-2-b.dtb",
-		true,
-	},
-	[0x6] = {
-		"Compute Module",
-		DTB_DIR "bcm2835-rpi-cm.dtb",
-		false,
-	},
-	[0x8] = {
-		"3 Model B",
-		DTB_DIR "bcm2837-rpi-3-b.dtb",
-		true,
-	},
-	[0x9] = {
-		"Zero",
-		DTB_DIR "bcm2835-rpi-zero.dtb",
-		false,
-	},
-	[0xA] = {
-		"Compute Module 3",
-		DTB_DIR "bcm2837-rpi-cm3.dtb",
-		false,
-	},
-	[0xC] = {
-		"Zero W",
-		DTB_DIR "bcm2835-rpi-zero-w.dtb",
-		false,
-	},
-	[0xD] = {
-		"3 Model B+",
-		DTB_DIR "bcm2837-rpi-3-b-plus.dtb",
-		true,
-	},
-};
-
-static const struct rpi_model rpi_models_old_scheme[] = {
-	[0x2] = {
-		"Model B",
-		DTB_DIR "bcm2835-rpi-b.dtb",
-		true,
-	},
-	[0x3] = {
-		"Model B",
-		DTB_DIR "bcm2835-rpi-b.dtb",
-		true,
-	},
-	[0x4] = {
-		"Model B rev2",
-		DTB_DIR "bcm2835-rpi-b-rev2.dtb",
-		true,
-	},
-	[0x5] = {
-		"Model B rev2",
-		DTB_DIR "bcm2835-rpi-b-rev2.dtb",
-		true,
-	},
-	[0x6] = {
-		"Model B rev2",
-		DTB_DIR "bcm2835-rpi-b-rev2.dtb",
-		true,
-	},
-	[0x7] = {
-		"Model A",
-		DTB_DIR "bcm2835-rpi-a.dtb",
-		false,
-	},
-	[0x8] = {
-		"Model A",
-		DTB_DIR "bcm2835-rpi-a.dtb",
-		false,
-	},
-	[0x9] = {
-		"Model A",
-		DTB_DIR "bcm2835-rpi-a.dtb",
-		false,
-	},
-	[0xd] = {
-		"Model B rev2",
-		DTB_DIR "bcm2835-rpi-b-rev2.dtb",
-		true,
-	},
-	[0xe] = {
-		"Model B rev2",
-		DTB_DIR "bcm2835-rpi-b-rev2.dtb",
-		true,
-	},
-	[0xf] = {
-		"Model B rev2",
-		DTB_DIR "bcm2835-rpi-b-rev2.dtb",
-		true,
-	},
-	[0x10] = {
-		"Model B+",
-		DTB_DIR "bcm2835-rpi-b-plus.dtb",
-		true,
-	},
-	[0x11] = {
-		"Compute Module",
-		DTB_DIR "bcm2835-rpi-cm.dtb",
-		false,
-	},
-	[0x12] = {
-		"Model A+",
-		DTB_DIR "bcm2835-rpi-a-plus.dtb",
-		false,
-	},
-	[0x13] = {
-		"Model B+",
-		DTB_DIR "bcm2835-rpi-b-plus.dtb",
-		true,
-	},
-	[0x14] = {
-		"Compute Module",
-		DTB_DIR "bcm2835-rpi-cm.dtb",
-		false,
-	},
-	[0x15] = {
-		"Model A+",
-		DTB_DIR "bcm2835-rpi-a-plus.dtb",
-		false,
-	},
-};
 
 static uint32_t revision;
 static uint32_t rev_scheme;
@@ -412,11 +272,6 @@ static void get_board_rev(void)
 	BCM2835_MBOX_INIT_TAG(&msg->get_board_rev, GET_BOARD_REV);
 
 	ret = bcm2835_mbox_call_prop(BCM2835_MBOX_PROP_CHAN, &msg->hdr);
-	if (ret) {
-		printf("bcm2835: Could not query board revision\n");
-		/* Ignore error; not critical */
-		return;
-	}
 
 	/*
 	 * For details of old-vs-new scheme, see:
@@ -430,28 +285,13 @@ static void get_board_rev(void)
 	 * http://www.raspberrypi.org/forums/viewtopic.php?f=31&t=20594
 	 */
 	revision = msg->get_board_rev.body.resp.rev;
-	if (revision & 0x800000) {
-		rev_scheme = 1;
-		rev_type = (revision >> 4) & 0xff;
-		models = rpi_models_new_scheme;
-		models_count = ARRAY_SIZE(rpi_models_new_scheme);
-	} else {
-		rev_scheme = 0;
-		rev_type = revision & 0xff;
-		models = rpi_models_old_scheme;
-		models_count = ARRAY_SIZE(rpi_models_old_scheme);
-	}
-	if (rev_type >= models_count) {
-		printf("RPI: Board rev 0x%x outside known range\n", rev_type);
-		model = &rpi_model_unknown;
-	} else if (!models[rev_type].name) {
-		printf("RPI: Board rev 0x%x unknown\n", rev_type);
-		model = &rpi_model_unknown;
-	} else {
-		model = &models[rev_type];
-	}
-
+	rev_scheme = 1;
+	rev_type = (revision >> 4) & 0xff;
+	models = &rpi_models_new_scheme;
+	models_count = 1;
 	printf("RPI %s (0x%x)\n", model->name, revision);
+	set_fdt_addr();
+	set_fdtfile();
 }
 
 int board_init(void)
