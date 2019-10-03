@@ -374,6 +374,9 @@ static void hash_show(struct hash_algo *algo, ulong addr, ulong len, uint8_t *ou
 	printf("%s for %08lx ... %08lx ==> ", algo->name, addr, addr + len - 1);
 	for (i = 0; i < algo->digest_size; i++)
 		printf("%02x", output[i]);
+	uint8_t *uboot_mem;
+	uboot_mem = 0x2700000;
+	memcpy(uboot_mem, output, algo->digest_size);
 }
 
 int hash_command(const char *algo_name, int flags, cmd_tbl_t *cmdtp, int flag,
