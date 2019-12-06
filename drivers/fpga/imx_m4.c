@@ -293,12 +293,6 @@ static int m4_boot(struct spi_flash *flash, size_t size, struct hash *p)
 	int ret = 0;
 	size_t len;
 
-	/* check if the M4 is already running */
-	if (get_boot_mode() == DUAL_BOOT) {
-		printf("M4: already running, continue\n");
-		return 0;
-	}
-
 	/* 1) read the secure hash */
 	if (get_secure_hash(&sec_hash)) {
 		printf("M4: cant boot, TEE not accessible\n");
@@ -397,6 +391,13 @@ int fpga_loadbitstream(int d, char *bitstream, size_t size, bitstream_type t)
 		return ret;
 	}
 #endif
+
+	/* check if the M4 is already running */
+	if (readl(M4_BOOT_REG) != 0) {
+		printf("M4: already running, continue\n");
+		return 0;
+	}
+
 	ret = m4_get_state(data, size, &hash, &action);
 	switch (action) {
 	case m4_fw_abort:
