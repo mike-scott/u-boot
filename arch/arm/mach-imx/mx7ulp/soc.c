@@ -104,14 +104,29 @@ int board_postclk_init(void)
 
 static void disable_wdog(u32 wdog_base)
 {
-	writel(UNLOCK_WORD0, (wdog_base + 0x04));
-	writel(UNLOCK_WORD1, (wdog_base + 0x04));
+	u32 val_cs = readl(wdog_base + 0x00);
+
+	if (!(val_cs & 0x80))
+		return;
+
+	dmb();
+	__raw_writel(REFRESH_WORD0, (wdog_base + 0x04)); /* Refresh the CNT */
+	__raw_writel(REFRESH_WORD1, (wdog_base + 0x04));
+	dmb();
+
+	if (!(val_cs & 800)) {
+		dmb();
+		__raw_writel(UNLOCK_WORD0, (wdog_base + 0x04));
+		__raw_writel(UNLOCK_WORD1, (wdog_base + 0x04));
+		dmb();
+
+		while (!(readl(wdog_base + 0x00) & 0x800));
+	}
 	writel(0x0, (wdog_base + 0x0C)); /* Set WIN to 0 */
 	writel(0x400, (wdog_base + 0x08)); /* Set timeout to default 0x400 */
 	writel(0x120, (wdog_base + 0x00)); /* Disable it and set update */
 
-	writel(REFRESH_WORD0, (wdog_base + 0x04)); /* Refresh the CNT */
-	writel(REFRESH_WORD1, (wdog_base + 0x04));
+	while (!(readl(wdog_base + 0x00) & 0x400));
 }
 
 void init_wdog(void)
@@ -221,6 +236,54 @@ static bool ldo_mode_is_enabled(void)
 		return false;
 }
 
+#define WDGCS1_WDGE                      (1<<7)
+#define WDGCS1_WDGUPDATE                 (1<<5)
+
+#define WDGCS2_RCS                       (1<<2)
+#define WDGCS2_ULK                       (1<<3)
+#define WDGCS2_FLG                       (1<<6)
+
+#define WDG_BUS_CLK                      (0x0)
+#define WDG_LPO_CLK                      (0x1)
+#define WDG_32KHZ_CLK                    (0x2)
+#define WDG_EXT_CLK                      (0x3)
+
+void hw_watchdog_init_test(void)
+{
+	static struct wdog_regs {
+		u8 cs1;
+		u8 cs2;
+		u16 reserve0;
+		u32 cnt;
+		u32 toval;
+		u32 win;
+	} *wdog = (struct wdog_regs *) WDG1_RBASE;
+	u8 val;
+
+	dmb();
+	__raw_writel(UNLOCK_WORD0, &wdog->cnt);
+	__raw_writel(UNLOCK_WORD1, &wdog->cnt);
+	dmb();
+
+	/* Wait WDOG Unlock */
+	while (!(readb(&wdog->cs2) & WDGCS2_ULK));
+
+	val = readb(&wdog->cs2);
+	val |= WDGCS2_FLG;
+	writeb(val, &wdog->cs2);
+
+	writel(1000, &wdog->toval);
+	writel(0, &wdog->win);
+
+	writeb(WDG_LPO_CLK, &wdog->cs2);/* setting 1-kHz clock source */
+	writeb((WDGCS1_WDGE | WDGCS1_WDGUPDATE), &wdog->cs1);/* enable counter running */
+
+	/* Wait WDOG reconfiguration */
+	while (!(readl(&wdog->cs2) & WDGCS2_RCS));
+
+	printf("watchdog enabled\n");
+}
+
 int print_cpuinfo(void)
 {
 	u32 cpurev;
@@ -254,6 +317,7 @@ int print_cpuinfo(void)
 	else
 		printf("PMC1:  LDO bypass mode\n");
 
+	hw_watchdog_init_test();
 	return 0;
 }
 #endif
