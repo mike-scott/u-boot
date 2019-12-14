@@ -260,6 +260,13 @@ void hw_watchdog_init_test(void)
 	} *wdog = (struct wdog_regs *) WDG1_RBASE;
 	u8 val;
 
+	printf("[U-BOOT] Dump PCC2 WDOG1 Reg   0x%x\n", PCC2_RBASE + WDG1_PCC2_SLOT * 4);
+	printf("[U-BOOT] Dump PCC2 WDOG1 Value 0x%x\n", *(u32 *)(PCC2_RBASE + WDG1_PCC2_SLOT * 4));
+	printf("[U-BOOT] Dump PCC2 WDOG2 Reg   0x%x\n", PCC2_RBASE + WDG2_PCC2_SLOT * 4);
+	printf("[U-BOOT] Dump PCC2 WDOG2 Value 0x%x\n", *(u32 *)(PCC2_RBASE + WDG2_PCC2_SLOT * 4));
+	printf("[U-BOOT] Dump WDG1_RBASE Reg   0x%x\n", WDG1_RBASE);
+	printf("[U-BOOT] Dump WDG2_RBASE Reg   0x%x\n", WDG2_RBASE);
+
 	dmb();
 	__raw_writel(UNLOCK_WORD0, &wdog->cnt);
 	__raw_writel(UNLOCK_WORD1, &wdog->cnt);
