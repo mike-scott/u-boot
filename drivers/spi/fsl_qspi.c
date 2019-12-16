@@ -1110,13 +1110,16 @@ static int fsl_qspi_claim_bus(struct udevice *dev)
 
 	priv->cur_amba_base = priv->amba_base[slave_plat->cs];
 
+#if 0
 	qspi_module_disable(priv, 0);
+#endif
 
 	return 0;
 }
 
 static int fsl_qspi_release_bus(struct udevice *dev)
 {
+#if 0
 	struct fsl_qspi_priv *priv;
 	struct udevice *bus;
 
@@ -1124,6 +1127,7 @@ static int fsl_qspi_release_bus(struct udevice *dev)
 	priv = dev_get_priv(bus);
 
 	qspi_module_disable(priv, 1);
+#endif
 
 	return 0;
 }
