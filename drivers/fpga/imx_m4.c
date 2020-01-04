@@ -272,7 +272,8 @@ retry_hash:
 		/* FIT firmware differs from installed firmware, upgrade */
 		if (get_boot_mode() == DUAL_BOOT) {
 			printf("M4: Invalid Boot Mode\n");
-			return -EINVAL;
+			*action = m4_fw_boot;
+			return 0;
 		}
 		*action = m4_fw_upgrade;
 	} else {
