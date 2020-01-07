@@ -256,6 +256,7 @@ static int m4_get_state(const void *data, size_t size,
 retry_hash:
 	/* Get the installed firmware hash (optee->fiovb->rpmb) */
 	if (get_secure_hash(&sec_hash)) {
+#if 0
 		if (!retry--) {
 			printf("M4: TA not accessible, abort\n");
 			return -EIO;
@@ -264,6 +265,11 @@ retry_hash:
 		/* first boot or keys corrupted, clean and retry  */
 		update_secure_hash(&sec_hash.hash, sec_hash.payload_len);
 		goto retry_hash;
+#else
+		printf("M4: TA not accessible, continue\n");
+		*action = m4_fw_boot;
+		return 0;
+#endif
 	}
 
 	if (sec_hash.hash.len != hash->len ||
@@ -297,9 +303,15 @@ static int m4_boot(struct spi_flash *flash, size_t size, struct hash *p)
 
 	/* 1) read the secure hash */
 	if (get_secure_hash(&sec_hash)) {
+#if 0
 		printf("M4: cant boot, TEE not accessible\n");
 		ret = -EIO;
 		goto error;
+#else
+		printf("M4: booting, TEE not accessible\n");
+		writel(M4_ENTRY(M4_BASE), M4_BOOT_REG);
+		return 0;
+#endif
 	}
 
 	/* 2) validate it against the known value */
