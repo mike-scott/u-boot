@@ -99,6 +99,17 @@ int board_init(void)
 	return 0;
 }
 
+/* will reset the M4 and the A7 */
+void board_m4_restart(void)
+{
+	unsigned reset = IMX_GPIO_NR(3, 10);
+
+	printf("ea board: system reset\n");
+	gpio_direction_output(reset, 0);
+	udelay(100);
+	gpio_set_value(reset, 1);
+}
+
 #if IS_ENABLED(CONFIG_OF_BOARD_SETUP)
 int ft_board_setup(void *blob, bd_t *bd)
 {
