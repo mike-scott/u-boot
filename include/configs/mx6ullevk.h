@@ -48,7 +48,16 @@
 #define CONFIG_SYS_MMC_IMG_LOAD_PART	1
 
 #ifndef CONFIG_SPL_BUILD
+#define CONFIG_MFG_ENV_SETTINGS \
+	"mfgtool_args=setenv bootargs console=${console},${baudrate} " \
+		"rdinit=/linuxrc " \
+		"clk_ignore_unused "\
+		"\0" \
+	"bootcmd_mfg=run mfgtool_args; echo \"Run fastboot ...\";" \
+		"fastboot 0;\0"
+
 #define CONFIG_EXTRA_ENV_SETTINGS \
+	CONFIG_MFG_ENV_SETTINGS \
 	"script=boot.scr\0" \
 	"image=zImage\0" \
 	"console=ttymxc0\0" \
