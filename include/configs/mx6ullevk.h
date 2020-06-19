@@ -121,6 +121,7 @@
 			"bootz; " \
 		"fi;\0" \
 
+#ifndef CONFIG_BOOTCOMMAND
 #define CONFIG_BOOTCOMMAND \
 	   "run findfdt;" \
 	   "mmc dev ${mmcdev};" \
@@ -134,6 +135,7 @@
 			   "fi; " \
 		   "fi; " \
 	   "else run netboot; fi"
+#endif
 #else
 #define CONFIG_EXTRA_ENV_SETTINGS
 #endif /* CONFIG_SPL_BUILD */
