@@ -13,6 +13,10 @@
 #include "mx6_common.h"
 #include <asm/mach-imx/gpio.h>
 
+#ifdef CONFIG_SPL
+#include "imx6_spl.h"
+#endif
+
 #define PHYS_SDRAM_SIZE	SZ_512M
 
 /* Size of malloc() pool */
@@ -43,6 +47,7 @@
 
 #define CONFIG_SYS_MMC_IMG_LOAD_PART	1
 
+#ifndef CONFIG_SPL_BUILD
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"script=boot.scr\0" \
 	"image=zImage\0" \
@@ -129,6 +134,9 @@
 			   "fi; " \
 		   "fi; " \
 	   "else run netboot; fi"
+#else
+#define CONFIG_EXTRA_ENV_SETTINGS
+#endif /* CONFIG_SPL_BUILD */
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_MEMTEST_START	0x80000000
