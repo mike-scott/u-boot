@@ -7,6 +7,8 @@
 /*
  * Boot support
  */
+#define DEBUG 1
+
 #include <common.h>
 #include <bootm.h>
 #include <command.h>

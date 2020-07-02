@@ -16,29 +16,13 @@
 	compatible = "fsl,imx7ulpea-ucom", "fsl,imx7ulp", "Generic DT based system";
 
 	chosen {
-		bootargs = "console=ttyLP0,115200 earlycon=lpuart32,0x402D0000,115200";
-		stdout-path = "serial0:115200n8";
+		bootargs = "console=ttyLP0,115200 earlycon";
+		stdout-path = &lpuart4;
 	};
 
 	memory {
 		device_type = "memory";
 		reg = <0x60000000 0x40000000>;
-	};
-
-	backlight {
-		compatible = "gpio-backlight";
-		pinctrl-names = "default";
-		pinctrl-0 = <&pinctrl_backlight>;
-		gpios = <&gpio3 2 GPIO_ACTIVE_HIGH>;
-		default-on;
-		status = "okay";
-	};
-
-	mipi_dsi_reset: mipi-dsi-reset {
-		compatible = "gpio-reset";
-		reset-gpios = <&gpio0 19 GPIO_ACTIVE_LOW>;
-		reset-delay-us = <1000>;
-		#reset-cells = <0>;
 	};
 
 	regulators {
@@ -112,24 +96,12 @@
 			>;
 		};
 
-		pinctrl_backlight: backlight_grp {
-			fsl,pins = <
-				IMX7ULP_PAD_PTF2__PTF2		0x20100
-			>;
-		};
-
 		pinctrl_lpi2c5: lpi2c5grp {
 			fsl,pins = <
 				IMX7ULP_PAD_PTC4__LPI2C5_SCL	0x27
 				IMX7ULP_PAD_PTC5__LPI2C5_SDA	0x27
 			>;
 
-		};
-
-		pinctrl_mipi_dsi_reset: mipi_dsi_reset_grp {
-			fsl,pins = <
-				IMX7ULP_PAD_PTC19__PTC19	0x20003
-			>;
 		};
 
 		pinctrl_lpuart4: lpuart4grp {
@@ -210,37 +182,6 @@
 	};
 };
 
-&lcdif {
-	status = "okay";
-	disp-dev = "mipi_dsi_northwest";
-	display = <&display0>;
-
-	display0: display@0 {
-		bits-per-pixel = <16>;
-		bus-width = <24>;
-
-		display-timings {
-			native-mode = <&timing0>;
-			timing0: timing0 {
-			clock-frequency = <9200000>;
-			hactive = <480>;
-			vactive = <272>;
-			hfront-porch = <8>;
-			hback-porch = <4>;
-			hsync-len = <41>;
-			vback-porch = <2>;
-			vfront-porch = <4>;
-			vsync-len = <10>;
-
-			hsync-active = <0>;
-			vsync-active = <0>;
-			de-active = <1>;
-			pixelclk-active = <0>;
-			};
-		};
-	};
-};
-
 &lpi2c7 {
 	#address-cells = <1>;
 	#size-cells = <0>;
@@ -254,14 +195,6 @@
 	#size-cells = <0>;
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_lpi2c5>;
-	status = "okay";
-};
-
-&mipi_dsi {
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_mipi_dsi_reset>;
-	lcd_panel = "TRULY-WVGA-TFT3P5581E";
-	resets = <&mipi_dsi_reset>;
 	status = "okay";
 };
 

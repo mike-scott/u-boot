@@ -11,6 +11,8 @@
  * Copyright (C) 2001  Erik Mouw (J.A.K.Mouw@its.tudelft.nl)
  */
 
+#define DEBUG 1
+
 #include <common.h>
 #include <command.h>
 #include <dm.h>
