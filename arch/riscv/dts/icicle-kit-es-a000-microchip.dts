@@ -1,0 +1,56 @@
+// SPDX-License-Identifier: (GPL-2.0 OR MIT)
+/* Copyright (c) 2019-2020 Microchip Technology Inc */
+/* Copyright (c) 2020 Foundries.io */
+
+#include "fu540-c000-microchip.dtsi"
+
+/* Clock frequency (in Hz) of the PCB crystal for rtcclk */
+#define RTCCLK_FREQ		1000000
+
+/ {
+	#address-cells = <2>;
+	#size-cells = <2>;
+	model = "Microchip Icicle Kit ES A000";
+	compatible = "sifive,FU540G-dev", "fu540-dev", "sifive-dev";
+
+	aliases {
+		serial0 = &uart1;
+		serial1 = &uart2;
+		serial2 = &uart3;
+		ethernet0 = &eth1;
+	};
+
+	chosen {
+		stdout-path = "serial0";
+	};
+
+	cpus {
+		timebase-frequency = <RTCCLK_FREQ>;
+	};
+
+	memory@80000000 {
+		device_type = "memory";
+		reg = <0x0 0x80000000 0x0 0x40000000>;
+		clocks = <&clkcfg 26>;
+	};
+};
+
+&uart1 {
+	status = "okay";
+};
+
+&uart2 {
+	status = "okay";
+};
+
+&uart3 {
+	status = "okay";
+};
+
+&emmc {
+	status = "okay";
+};
+
+&eth1 {
+	status = "okay";
+};
