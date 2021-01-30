@@ -23,6 +23,11 @@ DECLARE_GLOBAL_DATA_PTR;
 #define DMEM_OFFSET_ADDR 0x00054000
 #define DDR_TRAIN_CODE_BASE_ADDR IP2APB_DDRPHY_IPS_BASE_ADDR(0)
 
+#ifdef CONFIG_SPL_WITH_DDR_FIRMWARE
+char __firmware_image_start[0] __attribute__((section(".__firmware_image_start")));
+char __firmware_image_end[0] __attribute__((section(".__firmware_image_end")));
+#endif
+
 /* We need PHY iMEM PHY is 32KB padded */
 void ddr_load_train_firmware(enum fw_type type)
 {
@@ -34,11 +39,15 @@ void ddr_load_train_firmware(enum fw_type type)
 	unsigned long dmem_start;
 
 #ifdef CONFIG_SPL_OF_CONTROL
+#ifdef CONFIG_SPL_WITH_DDR_FIRMWARE
+	imem_start = (unsigned long)__firmware_image_start;
+#else
 	if (gd->fdt_blob && !fdt_check_header(gd->fdt_blob)) {
 		imem_start = roundup((unsigned long)&_end +
 				     fdt_totalsize(gd->fdt_blob), 4) +
 			fw_offset;
 	}
+#endif
 #endif
 
 	dmem_start = imem_start + IMEM_LEN;

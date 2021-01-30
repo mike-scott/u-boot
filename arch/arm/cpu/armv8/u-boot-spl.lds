@@ -51,6 +51,15 @@ SECTIONS
 		KEEP(*(SORT(.u_boot_list*)));
 	} >.sram
 
+#ifdef CONFIG_SPL_WITH_DDR_FIRMWARE
+	.firmware_image : {
+		. = ALIGN(4);
+		*(.__firmware_image_start)
+		KEEP(*(.firmware_image))
+		*(.__firmware_image_end)
+        } >.sram
+#endif
+
 	.image_copy_end : {
 		. = ALIGN(8);
 		*(.__image_copy_end)

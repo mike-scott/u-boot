@@ -27,6 +27,25 @@ config IMX8MP
 config SYS_SOC
 	default "imx8m"
 
+config SPL_WITH_DDR_FIRMWARE
+	bool "Enable build for SPL with DDR firmware attached"
+	depends on IMX8MQ || IMX8MM
+	help
+	  Add SPL step to the build which attaches DDR firmware
+	  and IVT header for booting directly on HW without the
+	  use of imx-boot.
+	  NOTE: DDR firmware should be placed at the base of
+	  the build directory.  Also set:
+	  CONFIG_SYS_EXTRA_OPTIONS="IMX_CONFIG=arch/arm/mach-imx/imx8m/imximage-8mm-lpddr4-spl.cfg"
+
+config SPL_WITH_DDR_FIRMWARE_LPDDR_FLAG
+	bool "DDR firmware is for lpddr HW"
+	default y
+	depends on SPL_WITH_DDR_FIRMWARE
+	help
+	  Use this flag to specify which DDR firmware to use
+	  DDR4 or LPDDR4.
+
 config SECONDARY_BOOT_SECTOR_OFFSET
 	hex "SD/MMC sector offset used for ROM secondary boot"
 	default 0x0

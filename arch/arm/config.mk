@@ -154,6 +154,12 @@ ifdef CONFIG_IMX_M4_BIND
 OBJCOPYFLAGS += -j .firmware_image
 endif
 
+ifdef CONFIG_SPL_BUILD
+ifdef CONFIG_SPL_WITH_DDR_FIRMWARE
+OBJCOPYFLAGS += -j .firmware_image
+endif
+endif
+
 ifneq ($(CONFIG_IMX_CONFIG),)
 ifdef CONFIG_SPL
 ifndef CONFIG_SPL_BUILD
